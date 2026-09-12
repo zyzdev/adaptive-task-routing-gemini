@@ -6,6 +6,17 @@ This skills-based extension contains adaptive-task-routing, task-context-router,
 and research-model-router under skills/. It uses the same descriptions and routing
 policy as the other platforms. Both independent routers default to ask.
 
+## Change modes in conversation
+
+You can inspect or change routing modes without editing extension files:
+
+- “Set Adaptive Task Routing to auto for this conversation.”
+- “Set model routing to ask.”
+- “Turn context routing off for this task.”
+- “What routing modes are active?”
+
+An unqualified mode change applies to both independent routers. See the [complete response example](docs/usage/README.md#what-you-will-see) or choose another language above.
+
 ## Install
 
 Install the public repository at the current release tag, then restart Gemini CLI:
