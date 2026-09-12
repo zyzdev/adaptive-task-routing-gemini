@@ -1,23 +1,22 @@
 # Adaptive Task Routing — Gemini CLI
 
+[English](docs/usage/README.md) · [繁體中文](docs/usage/README.zh-TW.md) · [简体中文](docs/usage/README.zh-CN.md) · [日本語](docs/usage/README.ja.md) · [한국어](docs/usage/README.ko.md)
+
 This skills-based extension contains adaptive-task-routing, task-context-router,
 and research-model-router under skills/. It uses the same descriptions and routing
 policy as the other platforms. Both independent routers default to ask.
 
-## Local installation
+## Install
 
-Extract this ZIP into an adaptive-task-routing directory, keeping gemini-extension.json
-at its root. Retain skills/ and shared/ together.
+Install the public repository at the current release tag, then restart Gemini CLI:
 
 ```bash
-gemini extensions validate /absolute/path/to/adaptive-task-routing
-gemini extensions link /absolute/path/to/adaptive-task-routing
+gemini extensions install https://github.com/zyzdev/adaptive-task-routing-gemini --ref v0.4.2
 gemini extensions list
-gemini skills list
 ```
 
-Linking changes the local extension registry. Use install instead of link if you
-want a copied installation. Start a new interactive session and inspect /skills list.
+For local development, use `gemini extensions link /absolute/path/to/adaptive-task-routing`
+and validate the directory first. Start a new interactive session and inspect `/skills list`.
 The manifest loads the packaged `GEMINI.md` after restart. Submit a cross-file release-flow,
 cross-platform consistency, and test-gap scan without naming the Skill. Confirm Gemini does not
 classify it as merely informational: the startup context applies the embedded coordinator contract,
