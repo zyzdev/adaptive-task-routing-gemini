@@ -1,6 +1,6 @@
 ---
 name: task-context-router
-description: Context-only child router that chooses CURRENT, HANDOFF, or CLEAN. Use when the user explicitly asks only for context advice or when adaptive-task-routing delegates. For a general substantial task needing both context and model routing, dispatch to adaptive-task-routing instead. Do not choose a model or reasoning effort.
+description: Context-only child router that chooses CURRENT, HANDOFF, or CLEAN and handles conversational inspection or changes of the context-routing mode. Use when the user explicitly asks only for context advice or mode control, or when adaptive-task-routing delegates. For a general substantial task needing both context and model routing, dispatch to adaptive-task-routing instead. Do not choose a model or reasoning effort.
 ---
 
 # Task Context Router
@@ -17,7 +17,7 @@ If the host cannot load a plugin-level reference, preserve these minimum invaria
 
 ## Direct-selection dispatch guard
 
-Before deciding Context or emitting output, determine why this Skill was loaded. Continue locally only when the user explicitly requested context-only routing or the `adaptive-task-routing` coordinator marked this call as coordinator-delegated. For any general substantial task where both Context and Model routing are expected, stop this child workflow, read [adaptive-task-routing](../adaptive-task-routing/SKILL.md), and follow that coordinator once. Do not emit a standalone Context result before dispatch. Pass an internal `delegated_from: task-context-router` marker; when the coordinator reads this Skill again with its coordinator-delegated marker, continue here and never dispatch again.
+Before deciding Context or emitting output, determine why this Skill was loaded. Continue locally only when the user explicitly requested context-only routing or context-mode control, or the `adaptive-task-routing` coordinator marked this call as coordinator-delegated. Handle a context-mode inspection/change immediately under the shared policy: confirm the effective value and scope without evaluating Context. For any general substantial task where both Context and Model routing are expected, stop this child workflow, read [adaptive-task-routing](../adaptive-task-routing/SKILL.md), and follow that coordinator once. Do not emit a standalone Context result before dispatch. Pass an internal `delegated_from: task-context-router` marker; when the coordinator reads this Skill again with its coordinator-delegated marker, continue here and never dispatch again.
 
 ## Routing gate
 
@@ -35,6 +35,8 @@ Return one recommendation:
 
 Judge dependency on prior turns, relevance of accumulated context, stale-instruction or anchoring risk, whether a concise handoff preserves all requirements, expected next-phase complexity, isolation needs, switching cost, and actual host capabilities.
 
+Return the effective context and a continuity rationale for the coordinator to pass to model routing: what information remains useful, what must be reconstructed, and any handoff/setup cost. This informs switching value but does not choose a model. A retained conversation is not proof of a prompt-cache hit; a new conversation does not make configuration changes cost-free. If the user declines a handoff, pass the retained context, not the proposed destination. When this router is off, the coordinator reports current placement without claiming it was assessed.
+
 Do not recommend a new context merely because the task is difficult. Do not use `CLEAN` when losing prior requirements creates avoidable risk. If the host cannot create a new context, report the recommendation without claiming it was applied.
 
 Identify the effective execution destination separately from the visible client (web, desktop, phone or terminal). A local shell or a new CLI process does not prove the current App can create or transfer a conversation. Preserve source/time/scope on capability observations; a destination's unreadable model settings must not block context-only advice. Do not fetch a model catalog for this router. A handoff may carry labeled configuration hints, never assume they remain current or supported in the destination.
@@ -50,6 +52,10 @@ Resolve this router's mode independently of the model router. A current-turn ins
 `off` means the router does not run. `ask` is the default interactive mode. When both routers require confirmation, combine their choices into one concise prompt when accurate, while preserving independent controls.
 
 ## Output
+
+Follow [routing UX](../../shared/routing-ux.md): lead with the context action and reason, and always include one localized sentence explaining whether a new conversation is needed when enabled. A recommended change is not an applied change. In a coordinated run, return the result for one combined note; do not emit a separate block. Continue only authorized work, and never let a retained model suppress a pending handoff or missing destination decision.
+
+Use the shared canonical action line unchanged and keep its short reason on a separate line.
 
 Keep `CURRENT`, `HANDOFF`, and `CLEAN` as stable values in structured evidence only. In compact user-facing output, show a plain-language description localized to the user's language and do not append the enum in parentheses. For Traditional Chinese use “留在目前對話,” “切換到新對話並帶入精簡交接,” or “開啟全新對話，不帶入目前脈絡,” as applicable.
 
@@ -99,7 +105,7 @@ This skill decides **where work runs**. `research-model-router` decides **which 
 
 ```text
 requested analysis or actionable plan → task-context-router → resolve context
-→ research-model-router → resolve model configuration → ask: wait | auto: execute
+→ research-model-router → resolve action and authorization → execute or ask for a real decision
 ```
 
 The [coordinator](../adaptive-task-routing/SKILL.md) owns this full sequence and loads the model router after this Skill returns. This Skill dispatches to the coordinator only when the host selected it for a general task; it never chooses the model itself. A direct context-only request stays context-only.

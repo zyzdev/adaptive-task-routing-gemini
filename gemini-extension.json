@@ -1,6 +1,6 @@
 {
   "name": "adaptive-task-routing",
-  "version": "0.4.2",
-  "description": "Recommend when to start a new conversation and which model and reasoning effort fit the next phase, helping reduce unnecessary usage and rework.",
+  "version": "0.5.0",
+  "description": "Recommend what to do next at task boundaries: keep, hand off, or change AI settings when worthwhile.",
   "contextFileName": "GEMINI.md"
 }
