@@ -1,0 +1,6 @@
+{
+  "name": "adaptive-task-routing",
+  "version": "0.4.2",
+  "description": "Route complex work to an appropriate conversation context, model, and reasoning effort using shared runtime capability detection and independent user controls.",
+  "contextFileName": "GEMINI.md"
+}
